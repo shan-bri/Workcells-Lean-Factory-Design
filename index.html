@@ -1,0 +1,1098 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Breezeway Workcell Designer</title>
+<style>
+:root{--bg:#f5f6f4;--card:#fff;--ink:#1d2622;--mute:#5d6b64;--line:#dfe3df;--acc:#1f6f5c;--acc2:#e7f2ee;--warn:#b42318;--ok:#157347;--D:#2563eb;--T:#ea7a1a}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:#163d33;color:#fff;padding:12px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+header h1{font-size:19px;margin:0;font-weight:650;letter-spacing:.2px}
+header small{opacity:.8;font-weight:400}
+header input{border:0;border-radius:6px;padding:6px 10px;font:inherit;width:190px}
+nav{display:flex;gap:2px;background:#163d33;padding:0 16px;overflow-x:auto}
+nav button{background:none;border:0;color:#cfe4dc;padding:10px 14px;font:inherit;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+nav button.on{color:#fff;border-bottom-color:#7fd1b4;font-weight:600}
+main{max-width:1240px;margin:0 auto;padding:18px 16px 40px}
+section{display:none}section.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+h2{font-size:20px;margin:0 0 8px}h3{font-size:16px;margin:14px 0 6px}
+p{margin:6px 0 10px}.mute{color:var(--mute)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:#f0f3f1;font-weight:600}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.cv{width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fbfcfb;display:block;touch-action:manipulation}
+.row{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:6px 0}
+label.f{display:flex;flex-direction:column;font-size:13px;color:var(--mute);gap:3px}
+select,input[type=number]{font:inherit;padding:5px 8px;border:1px solid #c9d0cb;border-radius:6px;background:#fff;color:var(--ink)}
+.btn{font:inherit;border:1px solid var(--acc);background:var(--acc);color:#fff;border-radius:7px;padding:7px 14px;cursor:pointer}
+.btn.o{background:#fff;color:var(--acc)}
+.btn:disabled{opacity:.5;cursor:default}
+.kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.kpi{background:#f6f8f7;border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.kpi b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;color:var(--mute)}
+.good{color:var(--ok)}.bad{color:var(--warn)}
+.pill{display:inline-block;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:600}
+.pill.g{background:#dcf2e5;color:#11613a}.pill.r{background:#fde4e1;color:#9b1c13}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--mute);margin-top:6px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.wk{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.wk span{font-size:13px;border-radius:6px;padding:2px 8px;color:#fff}
+.note{background:#fff8e6;border:1px solid #f1dfa8;border-radius:8px;padding:8px 12px;font-size:14px;margin:8px 0}
+.clock{font-variant-numeric:tabular-nums;font-weight:600}
+details summary{cursor:pointer;font-weight:600;margin:4px 0}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:900px){.twocol{grid-template-columns:1fr}}
+.chk{display:flex;gap:6px;align-items:center;font-size:14px}
+ol li,ul li{margin:3px 0}
+.small{font-size:13px}
+.scroll{overflow-x:auto}
+</style>
+</head>
+<body>
+<header>
+  <h1>Breezeway Fans Ltd · Workcell Designer <small>· practice case</small></h1>
+  <div class="row" style="margin:0"><span class="small">Team</span><input id="team" placeholder="Team name" maxlength="30"></div>
+</header>
+<nav id="nav">
+  <button data-t="brief" class="on">1 · Brief</button>
+  <button data-t="asm">2 · Assembly cell</button>
+  <button data-t="mac">3 · Machining cell</button>
+  <button data-t="cost">4 · Staffing &amp; cost</button>
+  <button data-t="linked">5 · Linked cells &amp; Round 2</button>
+  <button data-t="log">6 · Results</button>
+</nav>
+<main>
+<section id="s-brief" class="on">
+  <div class="card">
+    <h2>The brief</h2>
+    <p>Breezeway Fans Ltd (fictional) makes Desk and Tower fans for the domestic market, and Wall and Duct fans for industry. Suppose Breezeway goes ahead with a <b>focused factory for domestic fans</b>. Inside it, the work is done in two linked workcells:</p>
+    <ul>
+      <li><b>Machining &amp; winding cell</b>: automatic, single-cycle machines that make the motor housing and wind the motor. A worker unloads, loads and starts each machine (30 s per machine).</li>
+      <li><b>Assembly &amp; test cell</b>: manual stations that assemble, test and pack the fan.</li>
+    </ul>
+    <p>Pressed blanks come from the shared press outside the focused factory (a special operation), so you can assume they are always available. The two cells are linked by kanban: the machining cell only makes a housing when there is space in the kanban rack.</p>
+    <div class="twocol">
+      <div>
+        <h3>Demand and time</h3>
+        <table><tr><th></th><th class="n">Desk</th><th class="n">Tower</th><th class="n">Total</th></tr>
+        <tr><td>Demand per month</td><td class="n">900</td><td class="n">600</td><td class="n">1,500</td></tr>
+        <tr><td>Demand per day (20 days)</td><td class="n">45</td><td class="n">30</td><td class="n">75</td></tr></table>
+        <p class="small mute">Two shifts × 7.5 h = 900 min (54,000 s) per working day. The mix is 60% Desk and 40% Tower.</p>
+        <h3>Walking</h3>
+        <p class="small">Stations are 2 m apart around a U. Walking time = distance (m) at 1 m/s + 2 s to pick up or put down. The simulator works these out from the layout; the times are shown on each worker’s loop in “Check your working”.</p>
+        <h3>Costs</h3>
+        <p class="small">Labour £18 per worker-hour. Running cost (energy, tooling, depreciation): assembly cell £30/h, machining cell £95/h. A second motor winder costs £45,000.</p>
+      </div>
+      <div>
+        <h3>Assembly &amp; test cell (manual task times, s)</h3>
+        <table id="tbl-asm"></table>
+        <h3>Machining &amp; winding cell (machine times, s)</h3>
+        <table id="tbl-mac"></table>
+        <p class="small mute">C/O = changeover time when the station switches between Desk and Tower.</p>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Your tasks</h2>
+    <ol>
+      <li><b>Takt.</b> What is the required cycle time (takt) for the domestic focused factory?</li>
+      <li><b>One-worker assembly cell.</b> Work out the cell CT and capacity per day with one worker, by hand. Then build it in tab 2 and check.</li>
+      <li><b>Staffing.</b> What is the minimum number of workers to meet takt? Assign stations to workers (subcells) and compare with the rabbit chase. Which is better here, and why?</li>
+      <li><b>Machining cell.</b> Work out the worker CT and the longest machine CT. Does adding a second worker help? What would?</li>
+      <li><b>Batch size and SMED.</b> Keep sequential changeover. Try a batch of one (D T D T D), small batches and daily batches. How much SMED is needed before a batch of one works? <i>Extension: switch to stopping the whole cell. Why does it hurt small batches far more than daily ones?</i></li>
+      <li><b>Staffing and cost.</b> Use tab 4 to compare unit costs for different numbers of workers at £18/h and £24/h. Is the cheapest cell per fan always the right choice?</li>
+      <li><b>Round 2.</b> Link the cells in tab 5 and face +15% demand, variable task times and winder breakdowns. Recover with the fewest extra workers and the least spending, then pitch your design.</li>
+    </ol>
+    <p class="note">Predict first, then simulate. Write your hand calculation in “Check your working” before you run the simulator: the point is to see whether the lecture formulas hold up, and where they don’t.</p>
+  </div>
+</section>
+
+<section id="s-asm"></section>
+<section id="s-mac"></section>
+
+<section id="s-cost">
+  <div class="card">
+    <h2>Staffing and cost trade-off</h2>
+    <p>Like the cost–capacity analysis in the lecture: adding workers shortens the cell CT but adds labour cost. The table uses the lecture formulas with the best <i>straight</i> split of stations for each number of workers (try U-shaped pairings yourself in tabs 2 and 3).</p>
+    <div class="row">
+      <label class="f">Cell<select id="c-cell"><option value="asm">Assembly &amp; test</option><option value="mac">Machining &amp; winding</option></select></label>
+      <label class="f">Labour rate (£/h)<input id="c-rate" type="number" value="18" min="5" max="60" step="1"></label>
+      <label class="f">Cell running cost (£/h)<input id="c-op" type="number" value="30" min="0" max="400" step="5"></label>
+      <label class="f">Demand<select id="c-dem"><option value="0">1,500 / month</option><option value="1">+15% (1,725)</option></select></label>
+      <label class="chk"><input type="checkbox" id="c-show"> Show the table</label>
+    </div>
+    <div id="c-out" class="scroll"></div>
+  </div>
+</section>
+
+<section id="s-linked">
+  <div class="card">
+    <h2>Linked cells and Round 2</h2>
+    <p>This runs your current designs from tabs 2 and 3 together, linked by a kanban rack. Fans are released into the machining cell at takt; lead time is from release to packed fan.</p>
+    <div class="row" id="l-ctl"></div>
+    <div class="row">
+      <b class="small">Round 2:</b>
+      <label class="chk"><input type="checkbox" id="r-dem"> +15% demand</label>
+      <label class="chk"><input type="checkbox" id="r-cv"> Variable task times (±15%)</label>
+      <label class="chk"><input type="checkbox" id="r-bd"> Winder breakdowns (about 1 every 6 running hours)</label>
+      <label class="chk"><input type="checkbox" id="r-lab"> Labour rate rises to £24/h</label>
+    </div>
+    <div id="l-sum" class="small mute"></div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><b>Machining &amp; winding cell</b><span class="clock" id="l-clock"></span></div>
+      <canvas class="cv" id="cv-lmac" width="640" height="400"></canvas>
+      <div class="row" style="justify-content:center"><span class="small" id="l-kb"></span></div>
+      <b>Assembly &amp; test cell</b>
+      <canvas class="cv" id="cv-lasm" width="640" height="460"></canvas>
+      <div class="legend" id="l-leg"></div>
+    </div>
+    <div>
+      <div class="card"><h3 style="margin-top:0">Results (days 2–10)</h3><div class="kpis" id="l-kpi"></div><div id="l-more" class="small"></div></div>
+      <div class="card"><h3 style="margin-top:0">Pitch (2 minutes)</h3>
+        <ol class="small"><li>Your design: workers, assignment, batch size, changeover method, kanban.</li><li>The numbers: cell CT vs takt, output, lead time, cost per fan, spending.</li><li>Round 2: what broke first, and what you changed.</li><li>One risk you have not solved.</li></ol></div>
+    </div>
+  </div>
+</section>
+
+<section id="s-log">
+  <div class="card">
+    <h2>Results log</h2>
+    <p class="small mute">Every completed run is recorded here (in this browser only). Use it for your team record and pitch.</p>
+    <div class="row"><button class="btn o" id="csv">Download CSV</button><button class="btn o" id="clr">Clear log</button></div>
+    <div class="scroll" id="log"></div>
+  </div>
+</section>
+</main>
+<script>'use strict';
+// ---------- Breezeway Fans: workcell engine (time step = 1 s) ----------
+const DAY = 54000;            // 2 shifts x 7.5 h, in seconds
+const DAYS = 10;              // simulated working days (two weeks)
+const PITCH = 2;              // metres between neighbouring stations
+const PICK = 2;               // seconds to pick up / put down per move
+const MIX = { D: 0.6, T: 0.4 };
+const MODEL_NAME = { D: 'Desk', T: 'Tower' };
+const MTBF = 21600, MTTR = 2400; // winder: 6 h running between failures, 40 min mean repair
+
+const DEF = {
+  asm: {
+    key: 'asm', name: 'Assembly & test cell', short: 'Assembly', type: 'manual', opCost: 30,
+    stations: [
+      { n: 'Fit motor', t: { D: 150, T: 180 }, c: 0 },
+      { n: 'Wiring', t: { D: 180, T: 220 }, c: 0 },
+      { n: 'Fit blades', t: { D: 120, T: 160 }, c: 90 },
+      { n: 'Guard & grille', t: { D: 150, T: 200 }, c: 60 },
+      { n: 'Controls', t: { D: 120, T: 170 }, c: 0 },
+      { n: 'Fasten & torque', t: { D: 120, T: 150 }, c: 0 },
+      { n: 'Run & safety test', t: { D: 360, T: 420 }, c: 120 },
+      { n: 'Pack & label', t: { D: 180, T: 240 }, c: 60 }
+    ]
+  },
+  mac: {
+    key: 'mac', name: 'Machining & winding cell', short: 'Machining', type: 'auto', opCost: 95, load: 30,
+    stations: [
+      { n: 'CNC lathe', t: { D: 300, T: 360 }, c: 900 },
+      { n: 'CNC mill', t: { D: 300, T: 360 }, c: 900 },
+      { n: 'Drill & tap', t: { D: 120, T: 150 }, c: 300 },
+      { n: 'Wash', t: { D: 60, T: 80 }, c: 0 },
+      { n: 'Motor winder', t: { D: 480, T: 600 }, c: 480, wind: true },
+      { n: 'Electrical check', t: { D: 90, T: 100 }, c: 120 }
+    ]
+  }
+};
+
+function layout(N) {
+  const L = N === 8 ? 3 : 2, Tp = 2, R = L;
+  const W = (Tp + 1) * PITCH, H = (L + 1) * PITCH, S = [];
+  for (let i = 0; i < L; i++) S.push({ x: 0, y: (i + 1) * PITCH });
+  for (let i = 0; i < Tp; i++) S.push({ x: (i + 1) * PITCH, y: H });
+  for (let i = 0; i < R; i++) S.push({ x: W, y: (L - i) * PITCH });
+  return { S, in: { x: 0, y: 0 }, out: { x: W, y: 0 }, W, H };
+}
+function P(L, p) { return p === 'in' ? L.in : p === 'out' ? L.out : L.S[p]; }
+function walkT(L, a, b) {
+  if (a === b) return 0;
+  const A = P(L, a), B = P(L, b);
+  return Math.round(Math.hypot(A.x - B.x, A.y - B.y) + PICK);
+}
+function runsOf(list) {
+  const r = [];
+  for (const s of list) {
+    if (r.length && r[r.length - 1][1] === s - 1) r[r.length - 1][1] = s; else r.push([s, s]);
+  }
+  return r;
+}
+function stationsOf(design, w) {
+  const o = [];
+  design.assign.forEach((a, i) => { if (a === w) o.push(i); });
+  return o;
+}
+function blocksFor(def, design, w) {
+  if (design.scheme === 'rabbit') return [[0, def.stations.length - 1]];
+  return runsOf(stationsOf(design, w));
+}
+function buildPlan(def, design, w) {
+  const N = def.stations.length, acts = [];
+  for (const [a, b] of blocksFor(def, design, w)) {
+    if (a === 0) acts.push({ k: 'go', p: 'in' }, { k: 'pick', from: -1 });
+    else acts.push({ k: 'go', p: a }, { k: 'pick', from: a - 1 });
+    for (let s = a; s <= b; s++) acts.push({ k: 'go', p: s }, { k: 'op', s });
+    if (b === N - 1) acts.push({ k: 'go', p: 'out' }, { k: 'put', to: -2 });
+    else acts.push({ k: 'put', to: b });
+  }
+  return acts;
+}
+function slotsOf(def, design, s) { return (def.type === 'auto' && s.wind && design.secondWinder) ? 2 : 1; }
+
+// ---------- lecture formulas ----------
+function theory(def, design) {
+  const auto = def.type === 'auto', L = layout(def.stations.length);
+  const tt = (s, m) => m === 'W' ? MIX.D * s.t.D + MIX.T * s.t.T : s.t[m];
+  const per = m => {
+    const nLoops = design.scheme === 'rabbit' ? 1 : design.n, rows = [];
+    for (let w = 0; w < nLoops; w++) {
+      const plan = buildPlan(def, design, w);
+      if (!plan.length) { rows.push({ w, empty: true }); continue; }
+      const pts = plan.filter(a => a.k === 'go').map(a => a.p);
+      let walk = 0;
+      for (let i = 0; i < pts.length; i++) walk += walkT(L, pts[i], pts[(i + 1) % pts.length]);
+      const st = plan.filter(a => a.k === 'op').map(a => a.s);
+      let task = 0, mct = 0, maxSt = 0;
+      for (const i of st) {
+        const s = def.stations[i];
+        if (auto) { task += def.load; mct = Math.max(mct, (tt(s, m) + def.load) / slotsOf(def, design, s)); }
+        else { task += tt(s, m); maxSt = Math.max(maxSt, tt(s, m)); }
+      }
+      const wct = task + walk;
+      rows.push({ w, st, task, walk, wct, mct, maxSt, sub: auto ? Math.max(wct, mct) : wct });
+    }
+    let cell;
+    if (design.scheme === 'rabbit') {
+      const r = rows[0];
+      cell = Math.max(r.wct / design.n, auto ? r.mct : r.maxSt);
+      return { rows, cell, rabbit: true, share: r.wct / design.n, floor: auto ? r.mct : r.maxSt };
+    }
+    cell = Math.max(...rows.filter(r => !r.empty).map(r => r.sub));
+    return { rows, cell };
+  };
+  return { D: per('D'), T: per('T'), W: per('W') };
+}
+
+function bestSplit(def, n, extra) {
+  const N = def.stations.length;
+  let best = null;
+  const rec = (start, k, cuts) => {
+    if (k === n - 1) {
+      const assign = [];
+      let w = 0, c = [...cuts, N];
+      for (let i = 0; i < N; i++) { while (i >= c[w]) w++; assign.push(w); }
+      const d = Object.assign({ n, scheme: 'sub', assign, buf: 1 }, extra || {});
+      const th = theory(def, d).W.cell;
+      if (!best || th < best.ct) best = { ct: th, assign };
+      return;
+    }
+    for (let c = start + 1; c <= N - (n - 1 - k); c++) rec(c, k + 1, [...cuts, c]);
+  };
+  if (n === 1) return { ct: theory(def, Object.assign({ n: 1, scheme: 'sub', assign: Array(N).fill(0), buf: 1 }, extra || {})).W.cell, assign: Array(N).fill(0) };
+  rec(0, 0, []);
+  return best;
+}
+
+// ---------- random ----------
+function sampleF(cv) {
+  if (!cv) return 1;
+  const s = Math.sqrt(Math.log(1 + cv * cv));
+  let u = 0; while (!u) u = Math.random();
+  const z = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * Math.random());
+  return Math.exp(-s * s / 2 + s * z);
+}
+
+function makeSeq(k) {
+  if (k === 1) { const p = ['D', 'T', 'D', 'T', 'D']; return { m: i => p[i % 5], start: i => i }; }
+  const per = 5 * k;
+  return {
+    m: i => (i % per) < 3 * k ? 'D' : 'T',
+    start: i => { const r = i % per; return r < 3 * k ? i - r : i - (r - 3 * k); }
+  };
+}
+
+// ---------- a workcell ----------
+class Cell {
+  constructor(sim, key, design) {
+    this.sim = sim; this.key = key; this.design = design;
+    const def = this.def = DEF[key];
+    this.N = def.stations.length; this.L = layout(this.N); this.auto = def.type === 'auto';
+    const m0 = sim.firstModel;
+    this.st = def.stations.map((s, i) => ({
+      def: s, i, lock: null, setup: m0, busyT: 0,
+      slots: Array.from({ length: slotsOf(def, design, s) }, () => ({ part: null, done: 0, start: 0, setup: m0, down: 0, runT: 0, downT: 0 }))
+    }));
+    this.buf = Array.from({ length: this.N - 1 }, () => []);
+    this.cap = design.buf || 1;
+    this.input = []; this.wip = 0; this.model = m0; this.coUntil = 0;
+    this.coCount = 0; this.coTime = 0; this.out = 0; this.outWin = 0; this.breaks = 0;
+    this.workers = [];
+    for (let w = 0; w < design.n; w++) {
+      const plan = buildPlan(def, design, design.scheme === 'rabbit' ? 0 : w);
+      this.workers.push({ id: w, plan, a: 0, st: 'idle', until: 0, pos: 'in', from: 'in', to: 'in', t0: 0,
+        carry: null, next: null, slot: -1, vis: 'idle', multi: plan.filter(x => x.k === 'pick').length > 1, stats: { busy: 0, walk: 0, wait: 0, co: 0, idle: 0 } });
+    }
+    this.downstream = null; this.source = null;
+  }
+  peek() { if (!this.input.length && this.source) this.input.push(this.source()); return this.input[0]; }
+  step(t) {
+    const win = t >= this.sim.winStart, o = this.sim.opts;
+    if (this.auto) for (const S of this.st) for (const sl of S.slots) {
+      if (sl.part && t < sl.done) {
+        if (sl.down > t) { if (win) sl.downT++; }
+        else {
+          if (win) sl.runT++;
+          if (S.def.wind && o.breakdown && Math.random() < 1 / MTBF) {
+            const r = Math.max(60, Math.round(-Math.log(1 - Math.random()) * MTTR));
+            sl.down = t + r; sl.done += r; this.breaks++;
+          }
+        }
+      }
+    }
+    for (const w of this.workers) this.stepW(w, t, win);
+  }
+  stepW(w, t, win) {
+    const S = w.stats;
+    if (t < this.coUntil) {
+      if (w.until > t) { w.until++; w.t0++; }
+      if (win) S.co++; w.vis = 'co'; return;
+    }
+    if (!w.plan.length) { if (win) S.idle++; w.vis = 'idle'; return; }
+    for (let g = 0; g < 40; g++) {
+      if (w.st === 'walk' || w.st === 'op' || w.st === 'co') {
+        if (t < w.until) { if (win) S[w.st === 'op' ? 'busy' : w.st]++; w.vis = w.st; return; }
+        this.finish(w, t);
+        continue;
+      }
+      const r = this.act(w, t);
+      if (r === 'wait') { if (win) S.wait++; w.vis = 'wait'; return; }
+      if (r === 'co*') { if (win) S.co++; w.vis = 'co'; return; }
+      if (r === 'go') continue;
+      w.a = (w.a + 1) % w.plan.length;
+    }
+    if (win) S.walk++;
+  }
+  finish(w, t) {
+    const st = w.st, a = w.plan[w.a];
+    w.st = 'idle';
+    if (st === 'walk') { w.pos = w.to; w.a = (w.a + 1) % w.plan.length; return; }
+    if (st === 'co') return;               // same action again: now do the operation
+    const S = this.st[a.s];
+    if (this.auto) {
+      const sl = S.slots[w.slot];
+      sl.part = w.carry; sl.start = t;
+      sl.done = t + Math.max(1, Math.round(S.def.t[w.carry.m] * sampleF(this.sim.opts.cv * 0.2)));
+      w.carry = w.next; w.next = null; w.slot = -1;
+    }
+    S.lock = null;
+    w.a = (w.a + 1) % w.plan.length;
+  }
+  act(w, t) {
+    const a = w.plan[w.a], sim = this.sim, o = sim.opts;
+    if (a.k === 'go') {
+      if (w.pos === a.p) return 'next';
+      const d = walkT(this.L, w.pos, a.p);
+      w.st = 'walk'; w.from = w.pos; w.to = a.p; w.t0 = t;
+      w.until = t + Math.max(1, Math.round(d * (o.cv ? sampleF(o.cv * 0.5) : 1)));
+      return 'go';
+    }
+    if (a.k === 'pick') {
+      if (w.carry) return 'next';
+      if (a.from === -1) {
+        const u = this.peek();
+        if (!u) return 'wait';
+        if (o.coMode === 'all' && u.m !== this.model) {
+          if (this.wip > 0) return 'next';      // flush the cell first: go round without a new part
+          let tot = 0;
+          for (const S of this.st) for (const sl of S.slots) tot += S.def.c;
+          tot *= (1 - o.smed);
+          const nAct = this.workers.filter(x => x.plan.length).length || 1;
+          const dur = Math.max(1, Math.round(tot / nAct));
+          for (const S of this.st) { S.setup = u.m; for (const sl of S.slots) sl.setup = u.m; }
+          this.model = u.m; this.coUntil = t + dur; this.coCount++; this.coTime += dur * nAct;
+          return 'co*';
+        }
+        this.input.shift(); w.carry = u; this.wip++; this.model = u.m;
+        if (u.start === undefined) u.start = t;
+        return 'next';
+      }
+      const b = this.buf[a.from];
+      if (!b.length) return w.multi ? 'next' : 'wait';   // more than one block: carry on round the loop
+      w.carry = b.shift(); return 'next';
+    }
+    if (a.k === 'put') {
+      if (!w.carry) return 'next';
+      if (a.to === -2) {
+        if (this.downstream) { if (!this.downstream(w.carry, t)) return 'wait'; }
+        else sim.finishUnit(w.carry, t);
+        this.wip--; this.out++; if (t >= sim.winStart) this.outWin++;
+        w.carry = null; return 'next';
+      }
+      const b = this.buf[a.to];
+      if (b.length >= this.cap) return 'wait';
+      b.push(w.carry); w.carry = null; return 'next';
+    }
+    // operation
+    const S = this.st[a.s];
+    if (this.auto) return this.opAuto(w, S, t);
+    if (!w.carry) return 'next';
+    if (S.lock && S.lock !== w) return 'wait';
+    S.lock = w;
+    const u = w.carry;
+    if (S.setup !== u.m) {
+      const c = Math.round(S.def.c * (1 - o.smed));
+      S.setup = u.m;
+      if (c > 0 && o.coMode === 'seq') { w.st = 'co'; w.until = t + c; this.coCount++; this.coTime += c; return 'go'; }
+    }
+    w.st = 'op'; w.until = t + Math.max(1, Math.round(S.def.t[u.m] * sampleF(o.cv)));
+    return 'go';
+  }
+  opAuto(w, S, t) {
+    const o = this.sim.opts;
+    if (S.lock && S.lock !== w) return 'wait';
+    const fin = sl => sl.part && t >= sl.done;
+    if (w.carry) {
+      S.lock = w;
+      let k = w.slot;
+      if (k < 0) {
+        k = S.slots.findIndex(fin);
+        if (k < 0) k = S.slots.findIndex(sl => !sl.part);
+        if (k < 0) return 'wait';
+        w.slot = k;
+      }
+      const sl = S.slots[k];
+      if (sl.part) { if (!fin(sl)) return 'wait'; w.next = sl.part; sl.part = null; }
+      if (sl.setup !== w.carry.m) {
+        const c = Math.round(S.def.c * (1 - o.smed));
+        sl.setup = w.carry.m; S.setup = w.carry.m;
+        if (c > 0 && o.coMode === 'seq') { w.st = 'co'; w.until = t + c; this.coCount++; this.coTime += c; return 'go'; }
+      }
+      w.st = 'op'; w.until = t + Math.max(1, Math.round(this.def.load * sampleF(o.cv)));
+      return 'go';
+    }
+    const k = S.slots.findIndex(fin);
+    if (k >= 0) { w.carry = S.slots[k].part; S.slots[k].part = null; return 'next'; }
+    if (S.slots.some(sl => sl.part)) { return 'wait'; }
+    return 'next';
+  }
+}
+
+// ---------- simulation ----------
+class Sim {
+  constructor(opts) {
+    this.opts = Object.assign({ k: 15, coMode: 'seq', smed: 0, cv: 0, breakdown: false, demandUp: false,
+      capTest: false, release: 'takt', kanban: 5, days: DAYS }, opts);
+    const o = this.opts;
+    this.t = 0; this.end = o.days * DAY; this.winStart = DAY;
+    this.demandMonth = 1500 * (o.demandUp ? 1.15 : 1);
+    this.takt = DAY * 20 / this.demandMonth; this.perDay = DAY / this.takt;
+    this.seq = makeSeq(o.k); this.firstModel = this.seq.m(0);
+    this.units = []; this.nextIdx = 0; this.done = [];
+    this.cells = {};
+    if (o.mode !== 'asm') this.cells.mac = new Cell(this, 'mac', o.designs.mac);
+    if (o.mode !== 'mac') this.cells.asm = new Cell(this, 'asm', o.designs.asm);
+    this.first = o.mode === 'asm' ? this.cells.asm : this.cells.mac;
+    this.last = o.mode === 'mac' ? this.cells.mac : this.cells.asm;
+    if (o.mode === 'linked') {
+      this.kb = this.cells.asm.input;
+      this.cells.mac.downstream = (u) => { if (this.kb.length >= o.kanban) return false; this.kb.push(u); return true; };
+    }
+    if (o.capTest) this.first.source = () => this.newUnit(this.t);
+    this.wipSum = 0; this.wipN = 0; this.cellWipSum = 0; this.stuck = 0; this.deadlock = false;
+  }
+  newUnit(rel) { const i = this.nextIdx++; const u = { id: i, m: this.seq.m(i), rel }; this.units.push(u); return u; }
+  relTime(i) { return (this.opts.release === 'batch' ? this.seq.start(i) : i) * this.takt; }
+  finishUnit(u, t) { u.out = t; this.done.push(u); }
+  step() {
+    const t = this.t;
+    if (!this.opts.capTest) {
+      let r = this.relTime(this.nextIdx);
+      while (r <= t && r < this.end) { this.first.input.push(this.newUnit(r)); r = this.relTime(this.nextIdx); }
+    }
+    const before = this.done.length + (this.kb ? this.cells.mac.out : 0);
+    for (const k of ['mac', 'asm']) if (this.cells[k]) this.cells[k].step(t);
+    if (t >= this.winStart && t % 60 === 0) {
+      this.wipN++;
+      this.wipSum += this.units.length - this.done.length;
+      let cw = 0; for (const k in this.cells) cw += this.cells[k].wip; if (this.kb) cw += this.kb.length;
+      this.cellWipSum += cw;
+    }
+    // deadlock guard: nobody able to move for 3 hours while work is waiting
+    const all = Object.values(this.cells).flatMap(c => c.workers.filter(w => w.plan.length));
+    const after = this.done.length + (this.kb ? this.cells.mac.out : 0);
+    const running = Object.values(this.cells).some(c => c.st.some(S => S.slots.some(sl => sl.part && sl.done > t)));
+    if (after === before && all.length && !running && all.every(w => w.vis === 'wait') && this.units.length > this.done.length) {
+      if (++this.stuck > 10800) { this.deadlock = true; this.t = this.end; return; }
+    } else this.stuck = 0;
+    this.t++;
+  }
+  runAll() { while (this.t < this.end) this.step(); return this.results(); }
+  results() {
+    const w = this.winStart, days = (this.end - w) / DAY;
+    const outDay = this.last.outWin / days;
+    const leads = this.done.filter(u => u.rel >= w).map(u => (u.out - u.rel) / 60).sort((a, b) => a - b);
+    const mean = leads.length ? leads.reduce((a, b) => a + b, 0) / leads.length : NaN;
+    const p90 = leads.length ? leads[Math.floor(0.9 * (leads.length - 1))] : NaN;
+    const cells = {};
+    for (const k in this.cells) {
+      const c = this.cells[k], tot = { busy: 0, walk: 0, wait: 0, co: 0, idle: 0 };
+      const ws = c.workers.map(x => { for (const q in tot) tot[q] += x.stats[q]; return Object.assign({}, x.stats); });
+      const mach = c.auto ? c.st.map(S => ({ n: S.def.n, run: S.slots.reduce((a, s) => a + s.runT, 0) / (S.slots.length * (this.end - w)),
+        down: S.slots.reduce((a, s) => a + s.downT, 0) / (S.slots.length * (this.end - w)) })) : null;
+      cells[k] = { workers: c.workers.length, ws, tot, mach, coCount: c.coCount, coTime: c.coTime, outDay: c.outWin / days,
+        ct: c.outWin ? (this.end - w) / c.outWin : Infinity, breaks: c.breaks };
+    }
+    return {
+      outDay, perDay: this.perDay, takt: this.takt, leadMean: mean, leadP90: p90,
+      backlog: this.units.length - this.done.length, queue: this.first.input.length,
+      wip: this.wipN ? this.wipSum / this.wipN : 0, cellWip: this.wipN ? this.cellWipSum / this.wipN : 0,
+      cells, deadlock: this.deadlock, days
+    };
+  }
+}
+if (typeof module !== 'undefined') module.exports = { DEF, DAY, MIX, Sim, theory, bestSplit, layout, walkT, makeSeq };
+</script>
+<script>'use strict';
+const WCOL = ['#0e9f6e', '#7c3aed', '#db2777', '#0891b2', '#ca8a04', '#dc2626', '#4f46e5', '#65a30d'];
+const MCOL = { D: '#2563eb', T: '#ea7a1a' };
+const VCOL = { op: '#16a34a', busy: '#16a34a', walk: '#9aa5a0', wait: '#dc2626', co: '#9333ea', idle: '#cbd5d1' };
+const $ = id => document.getElementById(id);
+const f0 = x => isFinite(x) ? Math.round(x).toLocaleString('en-GB') : '–';
+const f1 = x => isFinite(x) ? (Math.round(x * 10) / 10).toLocaleString('en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '–';
+const f2 = x => isFinite(x) ? x.toFixed(2) : '–';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+// ---------- state ----------
+const state = {
+  team: '',
+  designs: {
+    asm: { n: 1, scheme: 'sub', assign: Array(8).fill(0), buf: 1 },
+    mac: { n: 1, scheme: 'sub', assign: Array(6).fill(0), buf: 1, secondWinder: false }
+  },
+  run: { k: 15, coMode: 'seq', smed: 0, release: 'takt' },
+  kanban: 5, speed: 600, log: []
+};
+const KEY = 'bw-workcell-v1';
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { } }
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (s && s.designs && s.designs.asm.assign.length === 8 && s.designs.mac.assign.length === 6) Object.assign(state, s);
+  } catch (e) { }
+}
+const RATE = 18;
+const labourRate = () => ($('r-lab') && $('r-lab').checked) ? 24 : RATE;
+
+function designStr(key) {
+  const d = state.designs[key], N = DEF[key].stations.length;
+  let s = `${d.n} worker${d.n > 1 ? 's' : ''} · `;
+  if (d.scheme === 'rabbit') s += 'rabbit chase';
+  else {
+    const g = [];
+    for (let w = 0; w < d.n; w++) {
+      const runs = [];
+      d.assign.forEach((a, i) => { if (a === w) { if (runs.length && runs[runs.length - 1][1] === i) runs[runs.length - 1][1] = i + 1; else runs.push([i + 1, i + 1]); } });
+      g.push(runs.map(r => r[0] === r[1] ? r[0] : r[0] + '–' + r[1]).join(',') || '–');
+    }
+    s += 'subcells ' + g.join(' | ');
+  }
+  if (key === 'mac' && d.secondWinder) s += ' · 2nd winder';
+  if (d.n > 1 && d.scheme === 'sub') s += ` · holding ${d.buf}`;
+  return s;
+}
+const PAT = { 1: 'Batch of one (D T D T D)', 5: 'Small batches (15 Desk, 10 Tower)', 15: 'Daily batches (45 Desk, 30 Tower)', 75: 'Weekly batches (225 Desk, 150 Tower)' };
+function runStr() {
+  const r = state.run;
+  return `${PAT[r.k].split(' (')[0]} · ${r.coMode === 'seq' ? 'sequential C/O' : 'stop-and-change C/O'} · SMED ${Math.round(r.smed * 100)}% · release ${r.release === 'takt' ? 'at takt' : 'whole batch'}`;
+}
+
+// ---------- brief tables ----------
+function briefTables() {
+  for (const key of ['asm', 'mac']) {
+    const def = DEF[key];
+    let h = '<tr><th>#</th><th>Station</th><th class="n">Desk</th><th class="n">Tower</th><th class="n">C/O</th></tr>';
+    def.stations.forEach((s, i) => { h += `<tr><td>${i + 1}</td><td>${s.n}</td><td class="n">${s.t.D}</td><td class="n">${s.t.T}</td><td class="n">${s.c ? s.c : '–'}</td></tr>`; });
+    if (key === 'mac') h += '<tr><td></td><td colspan="4" class="small mute">Plus 30 s worker time per machine to unload, load and start.</td></tr>';
+    $('tbl-' + key).innerHTML = h;
+  }
+}
+
+// ---------- run-settings control block (shared) ----------
+function runControls(prefix) {
+  const r = state.run;
+  return `<label class="f">Product mix<select id="${prefix}-k">${[1, 5, 15, 75].map(k => `<option value="${k}" ${r.k === k ? 'selected' : ''}>${PAT[k]}</option>`).join('')}</select></label>
+  <label class="f">Changeover method<select id="${prefix}-co"><option value="seq" ${r.coMode === 'seq' ? 'selected' : ''}>Sequential (one station at a time)</option><option value="all" ${r.coMode === 'all' ? 'selected' : ''}>Stop the cell and change everything</option></select></label>
+  <label class="f">SMED: changeover cut by<select id="${prefix}-smed">${[0, 0.5, 0.75, 0.9].map(v => `<option value="${v}" ${r.smed === v ? 'selected' : ''}>${v * 100}%</option>`).join('')}</select></label>
+  <label class="f">Release<select id="${prefix}-rel"><option value="takt" ${r.release === 'takt' ? 'selected' : ''}>One fan every takt</option><option value="batch" ${r.release === 'batch' ? 'selected' : ''}>Whole batch at once</option></select></label>`;
+}
+function bindRun(prefix) {
+  $(prefix + '-k').onchange = e => { state.run.k = +e.target.value; changed(); };
+  $(prefix + '-co').onchange = e => { state.run.coMode = e.target.value; changed(); };
+  $(prefix + '-smed').onchange = e => { state.run.smed = +e.target.value; changed(); };
+  $(prefix + '-rel').onchange = e => { state.run.release = e.target.value; changed(); };
+}
+function speedSel(id) {
+  return `<label class="f">Speed<select id="${id}">${[[60, '1 min per s'], [600, '10 min per s'], [3000, '50 min per s'], [12000, '3 h per s']].map(([v, l]) => `<option value="${v}" ${state.speed === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>`;
+}
+
+// ---------- cell tabs ----------
+function buildCellTab(key) {
+  const def = DEF[key], N = def.stations.length, auto = def.type === 'auto';
+  const H = auto ? 400 : 460;
+  $('s-' + key).innerHTML = `
+  <div class="grid">
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><b>${def.name}</b><span class="clock" id="${key}-clock">Day 1 · 06:00</span></div>
+      <canvas class="cv" id="cv-${key}" width="640" height="${H}"></canvas>
+      <div class="legend">${legendHTML(auto)}</div>
+      <div class="small mute" id="${key}-hint" style="margin-top:6px"></div>
+      <div class="wk" id="${key}-wk"></div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="row">
+          <label class="f">Workers<select id="${key}-n">${Array.from({ length: N }, (_, i) => `<option>${i + 1}</option>`).join('')}</select></label>
+          <label class="f">Scheme<select id="${key}-sch"><option value="sub">Subcells (assign stations)</option><option value="rabbit">Rabbit chase</option></select></label>
+          <label class="f">Holding space between workers<select id="${key}-buf"><option value="1">1 fan</option><option value="2">2 fans</option><option value="5">5 fans</option></select></label>
+          ${auto ? `<label class="chk"><input type="checkbox" id="${key}-w2"> Second motor winder (£45,000)</label>` : ''}
+        </div>
+        <div class="row" id="${key}-runctl"></div>
+        <div class="row">
+          <button class="btn" id="${key}-play">▶ Animate</button>
+          <button class="btn o" id="${key}-end">Run to the end</button>
+          <button class="btn o" id="${key}-reset">Reset</button>
+          ${speedSel(key + '-spd')}
+        </div>
+        <p class="small mute" style="margin:4px 0 0">Runs 10 working days. Fans are released at takt (720 s, or 626 s with +15% demand); results are measured over days 2–10. A second, hidden run with unlimited work measures the cell’s real capacity.</p>
+      </div>
+      <div class="card"><h3 style="margin-top:0">Results</h3><div class="kpis" id="${key}-kpi"></div><div id="${key}-more" class="small"></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0">Check your working</h3>
+    <p class="small">Work out the <b>cell cycle time</b> for your current design with the lecture formulas, by hand, before you run it.${auto ? ' For a machining cell: worker CT = Σ(30 s per machine) + Σ walk; cell CT = max(worker CT, longest machine time + 30 s).' : ' For an assembly cell: worker CT = Σ task times + Σ walk times; cell CT = the slowest worker (subcells), or one-worker CT ÷ number of workers (rabbit chase).'}</p>
+    <div class="row">
+      <label class="f">For<select id="${key}-cm"><option value="W">Weighted average (60% Desk, 40% Tower)</option><option value="D">Desk only</option><option value="T">Tower only</option></select></label>
+      <label class="f">Your cell CT (s per fan)<input type="number" id="${key}-ct" style="width:120px"></label>
+      <label class="f">Your capacity (fans per day)<input type="number" id="${key}-cap" style="width:120px"></label>
+      <button class="btn o" id="${key}-chk">Check</button>
+      <button class="btn o" id="${key}-show">Show the working</button>
+    </div>
+    <div id="${key}-chkout"></div>
+    <div id="${key}-work" class="scroll" style="display:none"></div>
+  </div>`;
+  const d = state.designs[key];
+  $(key + '-n').value = d.n; $(key + '-sch').value = d.scheme; $(key + '-buf').value = d.buf;
+  if (auto) $(key + '-w2').checked = !!d.secondWinder;
+  $(key + '-n').onchange = e => {
+    d.n = +e.target.value;
+    d.assign = d.assign.map((_, i) => Math.floor(i * d.n / N));
+    changed();
+  };
+  $(key + '-sch').onchange = e => { d.scheme = e.target.value; changed(); };
+  $(key + '-buf').onchange = e => { d.buf = +e.target.value; changed(); };
+  if (auto) $(key + '-w2').onchange = e => { d.secondWinder = e.target.checked; changed(); };
+  $(key + '-play').onclick = () => toggleAnim(key);
+  $(key + '-end').onclick = () => runToEnd(key);
+  $(key + '-reset').onclick = () => { stopAnim(); resetView(key); };
+  $(key + '-spd').onchange = e => { state.speed = +e.target.value; syncSpeed(); save(); };
+  $(key + '-chk').onclick = () => checkWork(key);
+  $(key + '-show').onclick = () => { const w = $(key + '-work'); const on = w.style.display === 'none'; w.style.display = on ? 'block' : 'none'; $(key + '-show').textContent = on ? 'Hide the working' : 'Show the working'; renderWork(key); };
+  $(key + '-cm').onchange = () => renderWork(key);
+  const cv = $('cv-' + key);
+  cv.addEventListener('click', e => {
+    if (d.scheme !== 'sub' || d.n < 2) return;
+    const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) * 640 / r.width, y = (e.clientY - r.top) * cv._H / r.height;
+    const b = (cv._boxes || []).find(b => x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h);
+    if (!b) return;
+    d.assign[b.i] = (d.assign[b.i] + 1) % d.n;
+    changed();
+  });
+}
+function legendHTML(auto) {
+  return `<span><i style="background:${MCOL.D}"></i>Desk fan</span><span><i style="background:${MCOL.T}"></i>Tower fan</span>
+  <span><i style="border:3px solid ${VCOL.op};width:7px;height:7px"></i>working</span><span><i style="border:3px solid ${VCOL.walk};width:7px;height:7px"></i>walking</span>
+  <span><i style="border:3px solid ${VCOL.wait};width:7px;height:7px"></i>waiting</span><span><i style="border:3px solid ${VCOL.co};width:7px;height:7px"></i>changeover</span>
+  ${auto ? '<span>Bar under a machine = machining progress (red = broken down)</span>' : ''}<span>Letter on a station = current set-up</span>`;
+}
+
+// ---------- drawing ----------
+function setupCanvas(cv) {
+  if (cv._ctx) return cv._ctx;
+  const W = +cv.getAttribute('width'), H = +cv.getAttribute('height');
+  cv._H = H; cv.width = W * 2; cv.height = H * 2;
+  const ctx = cv.getContext('2d'); ctx.scale(2, 2); cv._ctx = ctx; return ctx;
+}
+function rr(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+function hexA(h, a) { const n = parseInt(h.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; }
+function drawCell(cv, key, design, cell, t) {
+  const ctx = setupCanvas(cv), W = 640, H = cv._H, def = DEF[key], N = def.stations.length, L = layout(N), auto = def.type === 'auto';
+  ctx.clearRect(0, 0, W, H);
+  const pad = 64, sx = Math.min(115, (W - 2 * pad) / L.W), sy = (H - 2 * pad - 10) / L.H;
+  const ox = (W - L.W * sx) / 2, X = x => ox + x * sx, Y = y => H - pad + 6 - y * sy;
+  const bw = Math.min(104, sx * 1.2), bh = 52;
+  const pcx = X(L.W / 2), pcy = Y(L.H / 2);
+  const pt = p => P(L, p);
+  // worker standing point (pixels): just inside the U, next to the station
+  const innerPx = p => {
+    const q = pt(p), x = X(q.x), y = Y(q.y);
+    if (p === 'in' || p === 'out') return { x: x + (p === 'in' ? 26 : -26), y: y - 22 };
+    let dx = pcx - x, dy = pcy - y; const m = Math.hypot(dx, dy) || 1; dx /= m; dy /= m;
+    const k = Math.abs(dx) * (bw / 2 + 15) + Math.abs(dy) * (bh / 2 + 15);
+    return { x: x + dx * k, y: y + dy * k };
+  };
+  // flow path
+  ctx.strokeStyle = '#dbe2de'; ctx.lineWidth = 10; ctx.lineJoin = 'round'; ctx.beginPath();
+  ctx.moveTo(X(L.in.x), Y(L.in.y)); L.S.forEach(s => ctx.lineTo(X(s.x), Y(s.y))); ctx.lineTo(X(L.out.x), Y(L.out.y)); ctx.stroke();
+  // in / out
+  ctx.font = '600 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (const p of ['in', 'out']) {
+    const q = pt(p), x = X(q.x), y = Y(q.y);
+    ctx.fillStyle = '#fff'; ctx.strokeStyle = '#6b7a73'; ctx.lineWidth = 1.5; ctx.fillRect(x - 12, y - 12, 24, 24); ctx.strokeRect(x - 12, y - 12, 24, 24);
+    ctx.beginPath(); ctx.moveTo(x - 12, y - 12); ctx.lineTo(x + 12, y + 12); ctx.moveTo(x + 12, y - 12); ctx.lineTo(x - 12, y + 12); ctx.stroke();
+    ctx.fillStyle = '#1d2622';
+    let lab = p === 'in' ? 'In' : 'Out';
+    if (cell) lab += p === 'in' ? `  (${cell.input.length} waiting)` : `  (${cell.out} done)`;
+    ctx.fillText(lab, x, y + 26);
+  }
+  // stations
+  cv._boxes = [];
+  def.stations.forEach((s, i) => {
+    const q = L.S[i], x = X(q.x) - bw / 2, y = Y(q.y) - bh / 2;
+    cv._boxes.push({ i, x, y, w: bw, h: bh });
+    const S = cell ? cell.st[i] : null;
+    const owner = design.scheme === 'sub' ? design.assign[i] : -1;
+    ctx.fillStyle = owner >= 0 && design.n > 1 ? hexA(WCOL[owner], 0.16) : '#fff';
+    rr(ctx, x, y, bw, bh, 7); ctx.fill();
+    ctx.lineWidth = S && S.lock ? 3 : 1.3; ctx.strokeStyle = S && S.lock ? WCOL[S.lock.id] : (owner >= 0 && design.n > 1 ? WCOL[owner] : '#8a9891'); ctx.stroke();
+    ctx.fillStyle = '#1d2622'; ctx.font = '600 11px system-ui';
+    const words = (i + 1 + ' ' + s.n).split(' '); let l1 = '', l2 = '';
+    for (const wd of words) { if ((l1 + ' ' + wd).trim().length <= 16 && !l2) l1 = (l1 + ' ' + wd).trim(); else l2 = (l2 + ' ' + wd).trim(); }
+    ctx.fillText(l1, x + bw / 2, y + 12); if (l2) ctx.fillText(l2, x + bw / 2, y + 25);
+    ctx.font = '10px system-ui'; ctx.fillStyle = '#5d6b64';
+    ctx.fillText(`${s.t.D} / ${s.t.T} s`, x + bw / 2, y + (l2 ? 39 : 30));
+    if (!l2 && s.c) ctx.fillText(`C/O ${s.c}`, x + bw / 2, y + 42);
+    // set-up badge
+    const setup = S ? S.setup : 'D';
+    ctx.fillStyle = MCOL[setup]; ctx.beginPath(); ctx.arc(x + bw - 2, y + 2, 8, 0, 7); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = '700 10px system-ui'; ctx.fillText(setup, x + bw - 2, y + 2.5);
+    // machine progress bars
+    if (auto) {
+      const slots = S ? S.slots : Array.from({ length: slotsOf(def, design, s) }, () => null);
+      slots.forEach((sl, k) => {
+        const by = y + bh + 4 + k * 7;
+        ctx.fillStyle = '#e5e9e7'; ctx.fillRect(x + 4, by, bw - 8, 5);
+        if (sl && sl.part) {
+          const frac = t >= sl.done ? 1 : Math.max(0, Math.min(1, (t - sl.start) / Math.max(1, sl.done - sl.start)));
+          ctx.fillStyle = sl.down > t ? '#dc2626' : MCOL[sl.part.m]; ctx.fillRect(x + 4, by, (bw - 8) * frac, 5);
+        }
+      });
+    }
+  });
+  // holding spaces
+  for (let i = 0; i < N - 1; i++) {
+    const shared = design.scheme === 'sub' && design.n > 1 && design.assign[i] !== design.assign[i + 1];
+    const cnt = cell ? cell.buf[i].length : 0;
+    if (!shared && !cnt) continue;
+    const a = L.S[i], b = L.S[i + 1], m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    let x = X(m.x), y = Y(m.y); { let dx = pcx - x, dy = pcy - y; const mm = Math.hypot(dx, dy) || 1; x += dx / mm * 22; y += dy / mm * 22; }
+    ctx.fillStyle = cnt ? MCOL[cell.buf[i][cell.buf[i].length - 1].m] : '#fff'; ctx.strokeStyle = '#6b7a73'; ctx.lineWidth = 1.2;
+    ctx.fillRect(x - 7, y - 7, 14, 14); ctx.strokeRect(x - 7, y - 7, 14, 14);
+    if (cnt > 1) { ctx.fillStyle = '#fff'; ctx.font = '700 9px system-ui'; ctx.fillText(cnt, x, y + 0.5); }
+  }
+  // workers
+  const ws = cell ? cell.workers : Array.from({ length: design.n }, (_, w) => {
+    const plan = buildPlan(def, design, design.scheme === 'rabbit' ? 0 : w);
+    const first = plan.find(a => a.k === 'go');
+    return { id: w, st: 'idle', pos: first ? first.p : 'in', vis: plan.length ? 'idle' : 'idle', carry: null, plan };
+  });
+  const seen = {};
+  ws.forEach(w => {
+    let p;
+    if (w.st === 'walk' && cell) {
+      const A = innerPx(w.from), B = innerPx(w.to), fr = Math.max(0, Math.min(1, (t - w.t0) / Math.max(1, w.until - w.t0)));
+      p = { x: A.x + (B.x - A.x) * fr, y: A.y + (B.y - A.y) * fr };
+    } else p = innerPx(w.pos);
+    const kk = Math.round(p.x / 6) + ',' + Math.round(p.y / 6); const off = (seen[kk] = (seen[kk] || 0) + 1) - 1;
+    const x = p.x + off * 10, y = p.y - off * 10;
+    ctx.fillStyle = w.plan && !w.plan.length ? '#b8c2bd' : WCOL[w.id]; ctx.beginPath(); ctx.arc(x, y, 11, 0, 7); ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = VCOL[w.vis] || '#fff'; ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = '700 11px system-ui'; ctx.fillText(w.id + 1, x, y + 0.5);
+    if (w.carry) { ctx.fillStyle = MCOL[w.carry.m]; ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.fillRect(x + 6, y - 15, 9, 9); ctx.strokeRect(x + 6, y - 15, 9, 9); }
+  });
+}
+function clockStr(t) {
+  if (t >= DAYS * DAY) return `Day ${DAYS} · 21:00 (end)`;
+  const d = Math.floor(t / DAY) + 1, s = t % DAY, h = 6 + Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+  return `Day ${Math.min(d, DAYS)} · ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+function workerChips(key) {
+  const d = state.designs[key], el = $(key + '-wk');
+  if (d.scheme === 'rabbit') { el.innerHTML = `<span style="background:#5d6b64">All ${d.n} worker${d.n > 1 ? 's' : ''} walk the whole loop, one following the other</span>`; }
+  else {
+    const parts = designStr(key).split('subcells ')[1];
+    const g = parts ? parts.split(' · ')[0].split(' | ') : [];
+    el.innerHTML = g.map((s, w) => `<span style="background:${s === '–' ? '#b8c2bd' : WCOL[w]}">Worker ${w + 1}: ${s === '–' ? 'no stations' : 'station ' + s}</span>`).join('');
+  }
+  $(key + '-hint').textContent = d.scheme === 'sub' && d.n > 1 ? 'Click a station to give it to the next worker. Stations can be shared out in any pattern, e.g. U-shaped pairs like 1 and 8.' : '';
+}
+
+// ---------- check your working ----------
+function renderWork(key) {
+  const el = $(key + '-work'); if (el.style.display === 'none') return;
+  const def = DEF[key], d = state.designs[key], th = theory(def, d), auto = def.type === 'auto';
+  const m = $(key + '-cm').value, T = th[m];
+  const takt = 720;
+  let h = `<table><tr><th>Loop</th><th>Stations</th><th class="n">${auto ? 'Σ load/unload' : 'Σ task times'}</th><th class="n">Σ walk</th><th class="n">Worker CT</th>${auto ? '<th class="n">Longest machine CT</th>' : ''}<th class="n">${d.scheme === 'rabbit' ? 'Loop CT' : 'Subcell CT'}</th></tr>`;
+  T.rows.forEach(r => {
+    if (r.empty) { h += `<tr><td>Worker ${r.w + 1}</td><td colspan="${auto ? 6 : 5}" class="mute">no stations</td></tr>`; return; }
+    h += `<tr><td>${d.scheme === 'rabbit' ? 'Whole loop' : 'Worker ' + (r.w + 1)}</td><td>${r.st.map(s => s + 1).join(', ')}</td><td class="n">${f1(r.task)}</td><td class="n">${f0(r.walk)}</td><td class="n">${f1(r.wct)}</td>${auto ? `<td class="n">${f1(r.mct)}</td>` : ''}<td class="n">${f1(r.sub)}</td></tr>`;
+  });
+  h += '</table>';
+  if (T.rabbit) h += `<p class="small">Rabbit chase: cell CT = loop CT ÷ ${d.n} = ${f1(T.share)} s, but never faster than the slowest single ${auto ? 'machine (' + f1(T.floor) + ' s)' : 'station (' + f1(T.floor) + ' s)'} → <b>${f1(T.cell)} s</b>.</p>`;
+  const cap = DAY / T.cell;
+  h += `<p><b>Cell CT = ${f1(T.cell)} s per fan</b> (Desk ${f1(th.D.cell)} s, Tower ${f1(th.T.cell)} s, weighted ${f1(th.W.cell)} s). Capacity = 54,000 ÷ ${f1(T.cell)} = <b>${f1(cap)} fans per day</b>. Takt = 720 s (75 per day): ${T.cell <= takt ? '<span class="pill g">meets takt</span>' : '<span class="pill r">too slow</span>'}</p>`;
+  h += `<p class="small mute">The formula ignores changeovers, variation and breakdowns, and assumes every worker always has a fan to work on. The simulator includes all of these, so its “measured cell CT” is usually a little longer.</p>`;
+  el.innerHTML = h;
+}
+function checkWork(key) {
+  const def = DEF[key], d = state.designs[key], th = theory(def, d), m = $(key + '-cm').value, ct = th[m].cell, cap = DAY / ct;
+  const yc = parseFloat($(key + '-ct').value), yp = parseFloat($(key + '-cap').value);
+  const ok = (a, b) => isFinite(a) && Math.abs(a - b) / b <= 0.03;
+  let h = '<p>';
+  h += isFinite(yc) ? (ok(yc, ct) ? '<span class="pill g">Cell CT correct</span> ' : '<span class="pill r">Cell CT: check again</span> ') : '';
+  h += isFinite(yp) ? (ok(yp, cap) ? '<span class="pill g">Capacity correct</span>' : '<span class="pill r">Capacity: check again</span>') : '';
+  if (!isFinite(yc) && !isFinite(yp)) h += 'Enter your numbers first.';
+  else if (!(ok(yc, ct) && (ok(yp, cap) || !isFinite(yp)))) h += ' <span class="small mute">Hint: check the walk back from Out to In, and which worker is slowest. Answers within 3% count.</span>';
+  $(key + '-chkout').innerHTML = h + '</p>';
+}
+
+// ---------- animation ----------
+let anim = null;
+function simOpts(mode, capTest) {
+  const r = state.run, r2 = mode === 'linked';
+  return {
+    mode, designs: JSON.parse(JSON.stringify(state.designs)), k: r.k, coMode: r.coMode, smed: r.smed, release: r.release,
+    kanban: state.kanban, capTest,
+    demandUp: r2 && $('r-dem').checked, cv: r2 && $('r-cv').checked ? 0.15 : 0, breakdown: r2 && $('r-bd').checked
+  };
+}
+function playBtn(key) { return $(key === 'linked' ? 'l-play' : key + '-play'); }
+function toggleAnim(key) {
+  if (anim && anim.key === key && anim.running) { anim.running = false; playBtn(key).textContent = '▶ Animate'; return; }
+  if (anim && anim.key !== key) stopAnim();
+  if (!anim || anim.key !== key || anim.sim.t >= anim.sim.end) anim = { key, sim: new Sim(simOpts(key, false)), running: false };
+  anim.running = true; anim.last = performance.now(); anim.acc = 0;
+  playBtn(key).textContent = '❚❚ Pause';
+  requestAnimationFrame(tick);
+}
+function stopAnim() { if (anim) { anim.running = false; const b = playBtn(anim.key); if (b) b.textContent = '▶ Animate'; } anim = null; }
+function tick(now) {
+  if (!anim || !anim.running) return;
+  const dt = Math.min(100, now - anim.last); anim.last = now;
+  anim.acc += state.speed * dt / 1000;
+  let n = Math.floor(anim.acc); anim.acc -= n;
+  const s = anim.sim;
+  while (n-- > 0 && s.t < s.end) s.step();
+  drawSim(anim.key, s);
+  if (s.t >= s.end) { finishRun(anim.key, s); anim.running = false; playBtn(anim.key).textContent = '▶ Animate'; return; }
+  requestAnimationFrame(tick);
+}
+function drawSim(key, s) {
+  if (key === 'linked') {
+    drawCell($('cv-lmac'), 'mac', s.opts.designs.mac, s.cells.mac, s.t);
+    drawCell($('cv-lasm'), 'asm', s.opts.designs.asm, s.cells.asm, s.t);
+    $('l-clock').textContent = clockStr(s.t);
+    $('l-kb').textContent = `Kanban rack between the cells: ${s.kb.length} / ${s.opts.kanban} housings`;
+    liveKpi('l', s);
+  } else {
+    drawCell($('cv-' + key), key, s.opts.designs[key], s.cells[key], s.t);
+    $(key + '-clock').textContent = clockStr(s.t);
+    liveKpi(key, s);
+  }
+}
+function liveKpi(p, s) {
+  const el = $(p + '-kpi'); if (!el) return;
+  const day = s.t / DAY;
+  el.innerHTML = kpi(f0(s.last.out), 'fans finished so far') + kpi(f0(s.first.input.length), 'fans waiting to start') +
+    kpi(f1(Object.values(s.cells).reduce((a, c) => a + c.wip, 0) + (s.kb ? s.kb.length : 0)), 'fans in the cell' + (s.kb ? 's' : '')) + kpi(f1(day * s.perDay), 'demand so far');
+  $(p + '-more').innerHTML = '<span class="mute">Running…</span>';
+}
+function kpi(v, l, cls) { return `<div class="kpi"><b class="${cls || ''}">${v}</b><span>${l}</span></div>`; }
+function runToEnd(key) {
+  if (anim && anim.key !== key) stopAnim();
+  const s = anim && anim.key === key ? anim.sim : new Sim(simOpts(key, false));
+  if (anim) anim.running = false;
+  while (s.t < s.end) s.step();
+  drawSim(key, s);
+  finishRun(key, s);
+  anim = { key, sim: s, running: false }; playBtn(key).textContent = '▶ Animate';
+}
+function resetView(key) {
+  if (key === 'linked') {
+    drawCell($('cv-lmac'), 'mac', state.designs.mac, null, 0); drawCell($('cv-lasm'), 'asm', state.designs.asm, null, 0);
+    $('l-clock').textContent = clockStr(0); $('l-kb').textContent = `Kanban rack between the cells: 0 / ${state.kanban} housings`;
+    $('l-kpi').innerHTML = ''; $('l-more').innerHTML = '<span class="mute">Press Animate or Run to the end.</span>';
+  } else {
+    drawCell($('cv-' + key), key, state.designs[key], null, 0); $(key + '-clock').textContent = clockStr(0);
+    $(key + '-kpi').innerHTML = ''; $(key + '-more').innerHTML = '<span class="mute">Press Animate or Run to the end.</span>';
+    workerChips(key); renderWork(key);
+  }
+}
+function pct(a, b) { return b ? Math.round(100 * a / b) + '%' : '–'; }
+function splitLine(c) {
+  const T = c.tot, all = T.busy + T.walk + T.wait + T.co + T.idle;
+  return `working ${pct(T.busy, all)} · walking ${pct(T.walk, all)} · waiting ${pct(T.wait, all)} · changeover ${pct(T.co, all)}${T.idle ? ' · no stations ' + pct(T.idle, all) : ''}`;
+}
+function finishRun(key, s) {
+  const r = s.results(), rate = labourRate();
+  const meets = !r.deadlock && r.outDay >= r.perDay * 0.98 && r.queue <= r.perDay * 0.15;
+  const verdict = r.deadlock ? '<span class="pill r">workers blocked each other</span>' : meets ? '<span class="pill g">meets demand</span>' : '<span class="pill r">misses demand</span>';
+  let costH = 0, workers = 0, capex = 0;
+  for (const k in s.cells) { costH += s.cells[k].workers.length * rate + DEF[k].opCost; workers += s.cells[k].workers.length; }
+  if (s.cells.mac && s.opts.designs.mac.secondWinder) capex += 45000;
+  const costFan = r.outDay ? costH * 15 / r.outDay : Infinity;
+  const coDay = Object.values(r.cells).reduce((a, c) => a + c.coTime, 0) / 60 / DAYS;
+  const p = key === 'linked' ? 'l' : key;
+  if (key !== 'linked') {
+    const cap = new Sim(simOpts(key, true)).runAll(), c = cap.cells[key], th = theory(DEF[key], s.opts.designs[key]).W.cell;
+    $(p + '-kpi').innerHTML =
+      kpi(f1(r.outDay) + ' <span style="font-size:13px;color:#5d6b64">/ ' + f1(r.perDay) + '</span>', 'fans per day vs demand', meets ? 'good' : 'bad') +
+      kpi(f0(c.ct) + ' s', `measured cell CT (formula ${f0(th)} s; takt ${f0(r.takt)} s)`, c.ct <= r.takt ? 'good' : 'bad') +
+      kpi(f1(r.leadMean) + ' min', 'average lead time (incl. waiting to start)') +
+      kpi(f1(r.cellWip), 'average fans in the cell') +
+      kpi('£' + f2(costFan), `cost per fan (${workers} × £${rate}/h + £${DEF[key].opCost}/h)`) +
+      kpi(f0(r.queue), 'fans still waiting at the end', r.queue > r.perDay * 0.15 ? 'bad' : '');
+    let more = `<p>${verdict} Capacity with unlimited work: ${f1(c.outDay)} fans per day.</p><p>Worker time: ${splitLine(r.cells[key])}.</p>`;
+    more += `<p>Changeovers: ${f0(r.cells[key].coCount)} in 10 days, ${f1(coDay)} worker-minutes per day.</p>`;
+    if (r.cells[key].mach) more += '<p>Machine running time: ' + r.cells[key].mach.map(m => `${m.n} ${pct(m.run, 1)}`).join(' · ') + '</p>';
+    if (r.deadlock) more += '<p class="bad">The workers ended up waiting for each other and the cell stopped. Try a different assignment or a bigger holding space.</p>';
+    $(p + '-more').innerHTML = more;
+  } else {
+    $('l-kpi').innerHTML =
+      kpi(f1(r.outDay) + ' <span style="font-size:13px;color:#5d6b64">/ ' + f1(r.perDay) + '</span>', 'fans per day vs demand', meets ? 'good' : 'bad') +
+      kpi(f0(r.queue), 'fans waiting at the end (backlog)', r.queue > r.perDay * 0.15 ? 'bad' : '') +
+      kpi(f1(r.leadMean / 60) + ' h', `average lead time (90% within ${f1(r.leadP90 / 60)} h)`) +
+      kpi(f1(r.wip), 'average fans in progress') +
+      kpi('£' + f2(costFan), `cost per fan (${workers} workers at £${rate}/h)`) +
+      kpi('£' + f0(capex), 'spending (capex)');
+    let more = `<p>${verdict}</p>`;
+    for (const k of ['mac', 'asm']) more += `<p><b>${DEF[k].short}:</b> ${splitLine(r.cells[k])}${r.cells[k].breaks ? ` · ${r.cells[k].breaks} winder breakdowns` : ''}</p>`;
+    more += `<p>Changeovers: ${f1(coDay)} worker-minutes per day across both cells.</p>`;
+    if (r.deadlock) more += '<p class="bad">The workers ended up waiting for each other and a cell stopped.</p>';
+    $('l-more').innerHTML = more;
+  }
+  const o = s.opts;
+  state.log.push({
+    time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }), team: state.team || '', tab: key === 'linked' ? 'Linked' : DEF[key].short,
+    asm: key !== 'mac' ? designStr('asm') : '', mac: key !== 'asm' ? designStr('mac') : '', run: runStr() + (key === 'linked' ? ` · kanban ${o.kanban}` : ''),
+    r2: key === 'linked' ? [o.demandUp && '+15%', o.cv && 'variation', o.breakdown && 'breakdowns', rate !== RATE && '£24/h'].filter(Boolean).join(', ') || 'none' : '',
+    out: f1(r.outDay), dem: f1(r.perDay), queue: r.queue, lead: f1(r.leadMean), wip: f1(key === 'linked' ? r.wip : r.cellWip), workers, cost: f2(costFan), capex,
+    verdict: r.deadlock ? 'blocked' : meets ? 'meets demand' : 'misses demand'
+  });
+  save(); renderLog();
+}
+
+// ---------- cost tab ----------
+function renderCost() {
+  const key = $('c-cell').value, def = DEF[key], N = def.stations.length;
+  const rate = +$('c-rate').value || 0, op = +$('c-op').value || 0, up = $('c-dem').value === '1';
+  const perDay = 75 * (up ? 1.15 : 1), takt = DAY / perDay;
+  if (!$('c-show').checked) { $('c-out').innerHTML = '<p class="mute">Fill in the table on paper first (lecture slide: cost–capacity trade-off), then tick “Show the table” to check.</p>'; return; }
+  const extra = key === 'mac' ? { secondWinder: state.designs.mac.secondWinder } : {};
+  const rows = [];
+  for (let n = 1; n <= N; n++) {
+    const b = bestSplit(def, n, extra);
+    const rab = theory(def, Object.assign({ n, scheme: 'rabbit', assign: Array(N).fill(0), buf: 1 }, extra)).W.cell;
+    const ct = Math.min(b.ct, rab), cap = DAY / ct, perH = 3600 / ct, costH = n * rate + op;
+    rows.push({ n, sub: b.ct, rab, ct, cap, perH, lab: n * rate, costH, fanCap: costH / perH, fanDem: cap >= perDay ? costH * 15 / perDay : Infinity, ls: n * ct / 60, ok: ct <= takt });
+  }
+  const okRows = rows.filter(r => r.ok);
+  const minCap = okRows.length ? Math.min(...okRows.map(r => r.fanCap)) : null, minDem = okRows.length ? Math.min(...okRows.map(r => r.fanDem)) : null;
+  let h = `<table><tr><th class="n">Workers</th><th class="n">Best subcell CT (s)</th><th class="n">Rabbit chase CT (s)</th><th class="n">Output per hour</th><th class="n">Labour £/h</th><th class="n">Total £/h</th><th class="n">£ per fan at full capacity</th><th class="n">£ per fan making only demand*</th><th class="n">Labour standard (worker-min per fan)</th><th>Takt ${f0(takt)} s</th></tr>`;
+  for (const r of rows) h += `<tr><td class="n">${r.n}</td><td class="n">${f1(r.sub)}</td><td class="n">${f1(r.rab)}</td><td class="n">${f2(r.perH)}</td><td class="n">${f0(r.lab)}</td><td class="n">${f0(r.costH)}</td><td class="n" style="${r.ok && r.fanCap === minCap ? 'font-weight:700;color:#157347' : ''}">${f2(r.fanCap)}</td><td class="n" style="${r.ok && r.fanDem === minDem ? 'font-weight:700;color:#157347' : ''}">${isFinite(r.fanDem) ? f2(r.fanDem) : '–'}</td><td class="n">${f1(r.ls)}</td><td>${r.ok ? '<span class="pill g">meets</span>' : '<span class="pill r">too slow</span>'}</td></tr>`;
+  h += `</table><p class="small">* The cell is staffed for both shifts but only ${f1(perDay)} fans a day are needed, so the cost is spread over demand, not capacity. Green = cheapest option that meets takt in that column. Notice that the two columns can point to different answers: extra capacity only lowers the cost per fan if Breezeway can sell the extra fans, or move the spare worker to another cell (as the lecture notes say, workers are shifted between cells).</p>`;
+  $('c-out').innerHTML = h;
+}
+
+// ---------- log ----------
+const LOGCOLS = [['time', 'Time'], ['team', 'Team'], ['tab', 'Run'], ['mac', 'Machining design'], ['asm', 'Assembly design'], ['run', 'Mix and changeovers'], ['r2', 'Round 2'], ['out', 'Fans/day'], ['dem', 'Demand/day'], ['queue', 'Waiting at end'], ['lead', 'Lead time (min)'], ['wip', 'WIP'], ['workers', 'Workers'], ['cost', '£/fan'], ['capex', 'Capex £'], ['verdict', 'Verdict']];
+function renderLog() {
+  if (!state.log.length) { $('log').innerHTML = '<p class="mute">No runs yet.</p>'; return; }
+  let h = '<table><tr><th>#</th>' + LOGCOLS.map(c => `<th>${c[1]}</th>`).join('') + '</tr>';
+  state.log.forEach((r, i) => { h += `<tr><td>${i + 1}</td>` + LOGCOLS.map(c => `<td class="${['out', 'dem', 'queue', 'lead', 'wip', 'workers', 'cost', 'capex'].includes(c[0]) ? 'n' : ''}">${esc(r[c[0]] ?? '')}</td>`).join('') + '</tr>'; });
+  $('log').innerHTML = h + '</table>';
+}
+function csv() {
+  const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const lines = [LOGCOLS.map(c => q(c[1])).join(',')].concat(state.log.map(r => LOGCOLS.map(c => q(r[c[0]])).join(',')));
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' }));
+  a.download = `breezeway-workcell-${(state.team || 'team').replace(/\W+/g, '-')}.csv`; a.click();
+}
+
+// ---------- wiring ----------
+function syncSpeed() { for (const id of ['asm-spd', 'mac-spd', 'l-spd']) if ($(id)) $(id).value = state.speed; }
+function renderRunCtl() {
+  $('asm-runctl').innerHTML = runControls('ar'); bindRun('ar');
+  $('mac-runctl').innerHTML = runControls('mr'); bindRun('mr');
+  $('l-ctl').innerHTML = runControls('lr') + `<label class="f">Kanban rack size<select id="l-kbn">${[2, 5, 10, 20].map(v => `<option ${state.kanban === v ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
+    <button class="btn" id="l-play">▶ Animate</button><button class="btn o" id="l-end">Run to the end</button><button class="btn o" id="l-reset">Reset</button>${speedSel('l-spd')}`;
+  bindRun('lr');
+  $('l-kbn').onchange = e => { state.kanban = +e.target.value; changed(); };
+  $('l-play').onclick = () => toggleAnim('linked');
+  $('l-end').onclick = () => runToEnd('linked');
+  $('l-reset').onclick = () => { stopAnim(); resetView('linked'); };
+  $('l-spd').onchange = e => { state.speed = +e.target.value; syncSpeed(); save(); };
+}
+function linkedSummary() {
+  $('l-sum').innerHTML = `<b>Machining:</b> ${esc(designStr('mac'))} &nbsp;·&nbsp; <b>Assembly:</b> ${esc(designStr('asm'))}<br>${esc(runStr())}. Change the cell designs in tabs 2 and 3.`;
+}
+function changed() {
+  stopAnim();
+  for (const key of ['asm', 'mac']) {
+    const d = state.designs[key];
+    $(key + '-n').value = d.n; $(key + '-sch').value = d.scheme; $(key + '-buf').value = d.buf;
+    $(key + '-buf').disabled = d.scheme === 'rabbit' || d.n < 2;
+    resetView(key);
+  }
+  renderRunCtl(); linkedSummary(); resetView('linked'); renderCost(); save();
+}
+function initTabs() {
+  const btns = [...document.querySelectorAll('#nav button')];
+  btns.forEach(b => b.onclick = () => {
+    btns.forEach(x => x.classList.toggle('on', x === b));
+    document.querySelectorAll('main > section').forEach(s => s.classList.toggle('on', s.id === 's-' + b.dataset.t));
+    if (anim && anim.running && anim.key !== b.dataset.t) { anim.running = false; playBtn(anim.key).textContent = '▶ Animate'; }
+    window.scrollTo(0, 0);
+  });
+}
+function init() {
+  load();
+  briefTables(); buildCellTab('asm'); buildCellTab('mac'); initTabs();
+  $('l-leg').innerHTML = legendHTML(true);
+  $('team').value = state.team; $('team').oninput = e => { state.team = e.target.value; save(); };
+  for (const id of ['c-cell', 'c-rate', 'c-op', 'c-dem', 'c-show']) $(id).addEventListener('input', () => {
+    if (id === 'c-cell') $('c-op').value = DEF[$('c-cell').value].opCost; renderCost();
+  });
+  for (const id of ['r-dem', 'r-cv', 'r-bd', 'r-lab']) $(id).onchange = () => { stopAnim(); resetView('linked'); };
+  $('csv').onclick = csv;
+  $('clr').onclick = () => { if (confirm('Clear all logged runs?')) { state.log = []; save(); renderLog(); } };
+  changed(); renderLog();
+}
+init();
+</script>
+</body>
+</html>
